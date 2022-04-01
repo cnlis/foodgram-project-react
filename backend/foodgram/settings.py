@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+
+import rest_framework.permissions
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,6 +26,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'django_filters',
     # local apps
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
@@ -91,7 +94,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -101,15 +109,28 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
-    'SERIALIZERS': {
-        'user': 'users.serializers.UserSerializer',
-        'current_user': 'users.serializers.UserSerializer',
-        # 'user_create': 'users.serializers.UserCreateSerializer',
-    },
-    'PERMISSIONS': {
-        'user_list': ['rest_framework.permissions.IsAdminUser'],
-    },
+    # 'SERIALIZERS': {
+    #     'user': 'users.serializers.UserSerializer',
+    #     'current_user': 'users.serializers.UserSerializer',
+    # },
+    # 'PERMISSIONS': {
+    #     'user_list': ['rest_framework.permissions.IsAuthenticated'],
+    #     'user': ['rest_framework.permissions.IsAuthenticated'],
+
+        # 'activation': ['rest_framework.permissions.IsAdminUser'],
+        # 'password_reset': ['rest_framework.permissions.IsAdminUser'],
+        # 'password_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
+        # 'username_reset': ['rest_framework.permissions.IsAdminUser'],
+        # 'username_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
+        # 'set_username': ['rest_framework.permissions.IsAdminUser'],
+        # 'user_delete': ['rest_framework.permissions.IsAdminUser'],
+    # },
 }

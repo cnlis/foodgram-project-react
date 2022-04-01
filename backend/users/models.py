@@ -1,8 +1,6 @@
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
-    AbstractUser
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import UniqueConstraint, CheckConstraint
+from django.db.models import CheckConstraint, UniqueConstraint
 from django.utils.translation import gettext_lazy as _
 
 
@@ -18,6 +16,9 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _('Пользователь')
         verbose_name_plural = _('Пользователи')
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 class Subscribe(models.Model):
@@ -45,4 +46,4 @@ class Subscribe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} subscribed to {self.author}'
+        return f'{self.user} подписан на {self.author}'
