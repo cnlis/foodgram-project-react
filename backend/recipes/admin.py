@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from .models import Ingredient, Tag, Unit, Recipe, IngredientAmount
+from .models import Ingredient, IngredientAmount, Recipe, Tag, Unit
 
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'color', 'slug',)
     search_fields = ('name',)
     list_filter = ('name',)
+    prepopulated_fields = {"slug": ("name",)}
     empty_value_display = '-пусто-'
 
 

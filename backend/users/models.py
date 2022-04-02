@@ -7,11 +7,12 @@ from django.utils.translation import gettext_lazy as _
 class User(AbstractUser):
     first_name = models.CharField(_('Имя'), max_length=150)
     last_name = models.CharField(_('Фамилия'), max_length=150)
-    email = models.EmailField(_('Адрес электронной почты'))
+    email = models.EmailField(_('Адрес электронной почты'), unique=True)
     password = models.CharField(_('Пароль'), max_length=150)
 
-    EMAIL_FIELD = "email"
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
 
     class Meta:
         verbose_name = _('Пользователь')

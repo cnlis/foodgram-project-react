@@ -1,7 +1,7 @@
+import json
 import os
 from pathlib import Path
 
-import rest_framework.permissions
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,8 +12,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = json.loads(os.getenv('DJANGO_ALLOWED_HOSTS'))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,6 +69,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv('DB_ENGINE'),
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT')
+#     }
+# }
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -95,11 +105,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR / 'static'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -117,20 +126,27 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    # 'SERIALIZERS': {
-    #     'user': 'users.serializers.UserSerializer',
-    #     'current_user': 'users.serializers.UserSerializer',
-    # },
-    # 'PERMISSIONS': {
-    #     'user_list': ['rest_framework.permissions.IsAuthenticated'],
-    #     'user': ['rest_framework.permissions.IsAuthenticated'],
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserSerializer',
+        'user': 'users.serializers.CustomUserSerializer',
+        'current_user': 'users.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ('rest_framework.permissions.IsAuthenticated',),
+        'user_list': ('rest_framework.permissions.IsAdminUser',),
+        'set_password': ('rest_framework.permissions.IsAuthenticated',),
+        'user_create': ('rest_framework.permissions.AllowAny',),
+        'token_create': ('rest_framework.permissions.AllowAny',),
+        'token_destroy': ('rest_framework.permissions.IsAuthenticated',),
 
-        # 'activation': ['rest_framework.permissions.IsAdminUser'],
-        # 'password_reset': ['rest_framework.permissions.IsAdminUser'],
-        # 'password_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        # 'username_reset': ['rest_framework.permissions.IsAdminUser'],
-        # 'username_reset_confirm': ['rest_framework.permissions.IsAdminUser'],
-        # 'set_username': ['rest_framework.permissions.IsAdminUser'],
-        # 'user_delete': ['rest_framework.permissions.IsAdminUser'],
-    # },
+        # заблокируем для всех не требующиеся в API эндпоинты
+        'activation': ('user.permissions.AllowNoOne',),
+        'password_reset': ('user.permissions.AllowNoOne',),
+        'password_reset_confirm': ('user.permissions.AllowNoOne',),
+        'username_reset': ('user.permissions.AllowNoOne',),
+        'username_reset_confirm': ('user.permissions.AllowNoOne',),
+        'set_username': ('user.permissions.AllowNoOne',),
+        'user_delete': ('user.permissions.AllowNoOne',),
+    }
 }

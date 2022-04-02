@@ -1,13 +1,11 @@
-import base64
-
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from users.serializers import UserSerializer
+from users.serializers import CustomUserSerializer
 
+from .fields import Base64ImageField
 from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
                      ShoppingCart, Tag)
 
@@ -41,34 +39,24 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
         exclude = ('recipe', 'ingredient',)
 
 
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            file_format, image = data.split(';base64,')
-            ext = file_format.split('/')[-1]
-            data = ContentFile(base64.b64decode(image), name='img_.' + ext)
-        return super().to_internal_value(data)
-
-
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientAmountSerializer(
+        source='ingredientamount_set',
+        many=True,
+        read_only=True,
+    )
     tags = TagSerializer(many=True, read_only=True)
     image = Base64ImageField(required=True)
     name = serializers.CharField(required=True)
     text = serializers.CharField(required=True)
     cooking_time = serializers.IntegerField(required=True)
-    author = UserSerializer(default=serializers.CurrentUserDefault())
+    author = CustomUserSerializer(default=serializers.CurrentUserDefault())
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = '__all__'
-
-    def get_ingredients(self, obj):
-        queryset = obj.ingredientamount_set.all()
-        serializer = IngredientAmountSerializer(queryset, many=True)
-        return serializer.data
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
@@ -159,7 +147,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time',)
 
 
-class SubscribeSerializer(UserSerializer):
+class SubscribeSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 

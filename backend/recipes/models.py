@@ -8,12 +8,23 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    color = models.CharField(max_length=7, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name=_('Название'),
+    )
+    color = models.CharField(
+        max_length=7,
+        unique=True,
+        verbose_name=_('Цвет'),
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name=_('Слаг'),
+    )
 
     class Meta:
-        ordering = ['-id']
         verbose_name = _('Метка')
         verbose_name_plural = _('Метки')
 
@@ -22,10 +33,14 @@ class Tag(models.Model):
 
 
 class Unit(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name=_('Название'),
+    )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['name']
         verbose_name = _('Единица измерения')
         verbose_name_plural = _('Единицы измерения')
 
@@ -34,16 +49,16 @@ class Unit(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name=_('Название'),)
     measurement_unit = models.ForeignKey(
         Unit,
         on_delete=models.SET_NULL,
         related_name='ingredient',
-        null=True
+        null=True,
+        verbose_name=_('Единица измерения'),
     )
 
     class Meta:
-        ordering = ['-id']
         verbose_name = _('Ингредиент')
         verbose_name_plural = _('Ингредиенты')
 

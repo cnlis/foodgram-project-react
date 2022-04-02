@@ -7,14 +7,12 @@ from rest_framework.response import Response
 
 from recipes.serializers import SubscribeSerializer
 from users.models import Subscribe
-from users.serializers import UserSerializer
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = UserSerializer
 
     @action(methods=['POST', 'DELETE'], detail=True)
     def subscribe(self, request, id):
