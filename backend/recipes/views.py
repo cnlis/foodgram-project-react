@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
@@ -27,8 +28,6 @@ class TagViewSet(ReadOnlyViewSet):
 class IngredientViewSet(ReadOnlyViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    # filter_backends = (filters.SearchFilter,)
-    # search_fields = ('^name',)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
@@ -47,14 +46,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'DELETE':
             if not model.objects.filter(user=user, recipe=recipe).exists():
                 return Response(
-                    data={'errors': f'Нет рецепта "{recipe}" в {dest_str}'},
+                    data={'errors': (_('Нет рецепта {} в {}')
+                                     .format(recipe, dest_str))},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             model.objects.get(user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         if model.objects.filter(user=user, recipe=recipe).exists():
             return Response(
-                data={'errors': f'Рецепт {recipe} уже в {dest_str}'},
+                data={'errors': (_('Рецепт {} уже в {}')
+                                 .format(recipe, dest_str))},
                 status=status.HTTP_400_BAD_REQUEST
             )
         model.objects.create(user=user, recipe=recipe)
@@ -65,12 +66,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, pk):
-        return self.add_delete_item(request, pk, Favorite, 'избранном')
+        return self.add_delete_item(request, pk, Favorite, _('избранном'))
 
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[permissions.IsAuthenticated])
     def shopping_cart(self, request, pk):
-        return self.add_delete_item(request, pk, ShoppingCart, 'корзине')
+        return self.add_delete_item(request, pk, ShoppingCart, _('корзине'))
 
     @action(methods=['GET'], detail=False,
             permission_classes=[permissions.IsAuthenticated])

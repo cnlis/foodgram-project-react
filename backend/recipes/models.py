@@ -87,7 +87,8 @@ class IngredientAmount(models.Model):
         verbose_name_plural = _('Список ингредиентов')
 
     def __str__(self):
-        return f'Recipe {self.recipe} has {self.amount} of {self.ingredient}'
+        return (_('В рецепте {} {} {}')
+                .format(self.recipe, self.amount, self.ingredient))
 
 
 class Recipe(models.Model):
@@ -147,7 +148,8 @@ class Favorite(models.Model):
         verbose_name_plural = _('Избранные')
 
     def __str__(self):
-        return f'User {self.user} favorite {self.recipe}'
+        return (_('Пользователь {} добавил в избранное {}')
+                .format(self.user, self.recipe))
 
 
 class ShoppingCart(models.Model):
@@ -176,4 +178,5 @@ class ShoppingCart(models.Model):
         verbose_name_plural = _('Списки покупок')
 
     def __str__(self):
-        return f'User {self.user} add to shopping cart {self.recipe}'
+        return (_('Пользователь {} добавил в корзину {}')
+                .format(self.user, self.recipe))

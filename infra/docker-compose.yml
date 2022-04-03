@@ -3,9 +3,7 @@ version: '3.8'
 services:
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: cnlis/foodgram_front:latest
     volumes:
       - ../frontend/:/app/result_build/
 
@@ -32,11 +30,7 @@ services:
       - ./.env
 
   web:
-    # image: cnlis/foodgram:latest
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    restart: always
+    image: cnlis/foodgram:latest
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/

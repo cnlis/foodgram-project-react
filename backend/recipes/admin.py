@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from .models import Ingredient, IngredientAmount, Recipe, Tag, Unit
+
+admin.site.site_header = _('Администрирование Foodgram')
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -8,21 +11,21 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name',)
     prepopulated_fields = {"slug": ("name",)}
-    empty_value_display = '-пусто-'
+    empty_value_display = _('-пусто-')
 
 
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'measurement_unit',)
     search_fields = ('name',)
     list_filter = ('name',)
-    empty_value_display = '-пусто-'
+    empty_value_display = _('-пусто-')
 
 
 class UnitsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name',)
     search_fields = ('name',)
     list_filter = ('name',)
-    empty_value_display = '-пусто-'
+    empty_value_display = _('-пусто-')
 
 
 class IngredientAmountInline(admin.TabularInline):
@@ -35,7 +38,7 @@ class RecipeAdmin(admin.ModelAdmin):
                     'cooking_time', 'tag',)
     search_fields = ('name', 'text')
     list_filter = ('author', 'name', 'tags')
-    empty_value_display = '-пусто-'
+    empty_value_display = _('-пусто-')
     inlines = (IngredientAmountInline,)
     readonly_fields = ('count_favorite',)
 
@@ -48,9 +51,9 @@ class RecipeAdmin(admin.ModelAdmin):
     def count_favorite(self, obj):
         return obj.favorite.count()
 
-    ingredient.short_description = 'Ингридиенты'
-    tag.short_description = 'Метки'
-    count_favorite.short_description = 'Количество добавлений в избранное'
+    ingredient.short_description = _('Ингридиенты')
+    tag.short_description = _('Метки')
+    count_favorite.short_description = _('Количество добавлений в избранное')
 
 
 admin.site.register(Unit, UnitsAdmin)

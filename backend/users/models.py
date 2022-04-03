@@ -47,4 +47,4 @@ class Subscribe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} подписан на {self.author}'
+        return _('{} подписан на {}').format(self.user, self.author)

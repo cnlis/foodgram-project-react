@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from djoser.views import UserViewSet
 from rest_framework import permissions, status
 from rest_framework.decorators import action
@@ -21,19 +22,21 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'DELETE':
             if not Subscribe.objects.filter(user=user, author=author).exists():
                 return Response(
-                    data={'errors': f'Вы не подписаны на автора {author}'},
+                    data={'errors': _('Вы не подписаны на '
+                                      'автора {}').format(author)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Subscribe.objects.get(user=user, author=author).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         if user == author:
             return Response(
-                data={'errors': 'Нельзя подписаться на самого себя'},
+                data={'errors': _('Нельзя подписаться на самого себя')},
                 status=status.HTTP_400_BAD_REQUEST
             )
         if Subscribe.objects.filter(user=user, author=author).exists():
             return Response(
-                data={'errors': f'Вы уже подписаны на автора {author}'},
+                data={'errors': _('Вы уже подписаны на '
+                                  'автора {}').format(author)},
                 status=status.HTTP_400_BAD_REQUEST
             )
         Subscribe.objects.create(user=user, author=author)

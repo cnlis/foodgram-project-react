@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from fpdf import FPDF
 
 
@@ -6,9 +7,9 @@ def generate_pdf(data):
     pdf.add_page()
     pdf.add_font('DejaVu', fname='fonts/DejaVuSerif.ttf')
     pdf.set_font('DejaVu', '', 20)
-    pdf.cell(200, 10, txt='FoodStoGram',
+    pdf.cell(200, 10, txt=_('FoodStoGram'),
              ln=1, align='C')
-    pdf.cell(200, 10, txt='Ваш список покупок по выбранным рецептам:',
+    pdf.cell(200, 10, txt=_('Ваш список покупок по выбранным рецептам:'),
              ln=2, align='C')
     pdf.set_font('DejaVu', '', 16)
     pdf.cell(200, 10, txt='', ln=2, align='L')
