@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
+    # to remove unnecessary meda
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
