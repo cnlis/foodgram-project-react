@@ -1,10 +1,10 @@
-name: YaMDB workflow
+name: Foodgram workflow
 
 on: [push]
 
 jobs:
   tests:
-    name: Testing with flake8 and pytest
+    name: Testing with flake8
     runs-on: ubuntu-latest
     strategy:
       matrix:
