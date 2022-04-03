@@ -1,7 +1,7 @@
 import django_filters as df
 from django.db.models import Case, IntegerField, Q, Value, When
 
-from .models import Ingredient, Recipe
+from .models import Ingredient, Recipe, Tag
 
 
 class IngredientFilter(df.FilterSet):
@@ -24,7 +24,11 @@ class IngredientFilter(df.FilterSet):
 
 
 class RecipeFilter(df.FilterSet):
-    tags = df.AllValuesMultipleFilter(field_name='tags__slug',)
+    tags = df.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all(),
+    )
     author = df.NumberFilter(field_name='author', lookup_expr='exact')
     is_favorited = df.NumberFilter(method='get_is_favorited')
     is_in_shopping_cart = df.NumberFilter(method='get_is_in_shopping_cart')

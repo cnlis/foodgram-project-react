@@ -72,6 +72,7 @@ jobs:
             script: |
               sudo docker-compose stop
               sudo docker-compose rm web
+              rm .env
               touch .env
               echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} >> .env
               echo DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }} >> .env

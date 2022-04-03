@@ -37,7 +37,7 @@ LANGUAGE_CODE to 'en' in file backend/foodgram/settings.py.
 
 ### Как запустить проект:
 
-Клонировать репозиторий и перейти в него в командной строке:
+- Клонировать репозиторий и перейти в него в командной строке:
 
 ```console
 git clone https://github.com/cnlis/foodgram-project-react.git
@@ -47,11 +47,11 @@ git clone https://github.com/cnlis/foodgram-project-react.git
 cd foodgram-project-react/infra
 ```
 
-Создать в папке файл .env:
+- Создать в папке файл .env:
 ```console
 nano .env
 ```
-Заполнить файл следующими данными:
+- Заполнить файл следующими данными:
 ```
 DJANGO_SECRET_KEY=''  # секретный ключ Django
 DJANGO_ALLOWED_HOSTS='["localhost"]'  # список хостов в формате JSON
@@ -63,13 +63,16 @@ DB_HOST=db  # название сервиса (контейнера)
 DB_PORT=5432  # используемый порт БД
 ```
 
-Запустить docker-compose:
+- Для работы файлов документации скопируйте папку **data/** в корневую папку 
+пользователя. 
+
+- Запустить docker-compose:
 
 ```console
 docker-compose up --build -d
 ```
 
-Выполнить миграции базы данных, создать суперпользователя, собрать статику:
+- Выполнить миграции базы данных, создать суперпользователя, собрать статику:
 
 ```console
 docker-compose exec web python manage.py migrate
@@ -77,7 +80,7 @@ docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py collectstatic --no-input
 ```
 
-Загрузить исходные данные в базу (ингредиенты и единицы измерения):
+- Загрузить исходные данные в базу (ингредиенты и единицы измерения):
 
 ```console
 docker-compose exec web python manage.py loaddata fixtures.json
