@@ -83,7 +83,6 @@ class IngredientAmount(models.Model):
                 name='unique_ingredient'
             ),
         ]
-        ordering = ['-id']
         verbose_name = _('Ингредиент')
         verbose_name_plural = _('Список ингредиентов')
 

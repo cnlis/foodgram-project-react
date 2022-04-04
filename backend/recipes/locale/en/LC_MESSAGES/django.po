@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-04 01:55+0800\n"
+"POT-Creation-Date: 2022-04-04 18:30+0800\n"
 "PO-Revision-Date: 2022-04-03 16:07+0800\n"
 "Last-Translator: KIRILL LISITSYNSKIY\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,27 +22,27 @@ msgstr ""
 msgid "Администрирование Foodgram"
 msgstr "Foodgram administration"
 
-#: admin.py:14 admin.py:21 admin.py:28 admin.py:41
+#: admin.py:14 admin.py:21 admin.py:28 admin.py:42
 msgid "-пусто-"
 msgstr "-empty-"
 
-#: admin.py:54 models.py:106
+#: admin.py:55 models.py:105
 msgid "Ингридиенты"
 msgstr "Ingredients"
 
-#: admin.py:55 models.py:30 models.py:96
+#: admin.py:56 models.py:30 models.py:95
 msgid "Метки"
 msgstr "Tags"
 
-#: admin.py:56
+#: admin.py:57
 msgid "Количество добавлений в избранное"
 msgstr "Add to favorite list count"
 
-#: apps.py:8 models.py:124
+#: apps.py:8 models.py:123
 msgid "Рецепты"
 msgstr "Recipes"
 
-#: models.py:15 models.py:40 models.py:53 models.py:108
+#: models.py:15 models.py:40 models.py:53 models.py:107
 msgid "Название"
 msgstr "Name"
 
@@ -66,7 +66,7 @@ msgstr "Measurement unit"
 msgid "Единицы измерения"
 msgstr "Measurement units"
 
-#: models.py:63 models.py:87
+#: models.py:63 models.py:86
 msgid "Ингредиент"
 msgstr "Ingredient"
 
@@ -78,81 +78,81 @@ msgstr "Ingredients"
 msgid "Количество"
 msgstr "Amount"
 
-#: models.py:88
+#: models.py:87
 msgid "Список ингредиентов"
 msgstr "Ingredients list"
 
-#: models.py:91
+#: models.py:90
 msgid "В рецепте {} {} {}"
 msgstr "Recipe has {} {} of {}"
 
-#: models.py:101
+#: models.py:100
 msgid "Автор"
 msgstr "Author"
 
-#: models.py:112
+#: models.py:111
 msgid "Описание"
 msgstr "Text"
 
-#: models.py:114
+#: models.py:113
 msgid "Изображение"
 msgstr "Image"
 
-#: models.py:118
+#: models.py:117
 msgid "Время приготовления"
 msgstr "Cooking time"
 
-#: models.py:123 models.py:141 models.py:171
+#: models.py:122 models.py:140 models.py:170
 msgid "Рецепт"
 msgstr "Recipe"
 
-#: models.py:135 models.py:165
+#: models.py:134 models.py:164
 msgid "Пользователь"
 msgstr "User"
 
-#: models.py:152
+#: models.py:151
 msgid "Избранное"
 msgstr "Favorite"
 
-#: models.py:153
+#: models.py:152
 msgid "Избранные"
 msgstr "Favorites"
 
-#: models.py:156
+#: models.py:155
 msgid "Пользователь {} добавил в избранное {}"
 msgstr "User {self.user} add to favorites {}"
 
-#: models.py:182
+#: models.py:181
 msgid "Список покупок"
 msgstr "Shopping cart"
 
-#: models.py:183
+#: models.py:182
 msgid "Списки покупок"
 msgstr "Shopping cart"
 
-#: models.py:186
+#: models.py:185
 msgid "Пользователь {} добавил в корзину {}"
 msgstr "User {self.user} add to cart {}"
 
-#: serializers.py:92
+#: serializers.py:96
 msgid "В рецепте должен быть минимум один ингредиент"
 msgstr "Recipe should have at least one ingredient"
 
-#: serializers.py:93
+#: serializers.py:97
 msgid "Все ингредиенты должны быть уникальны"
 msgstr "All ingredients should be unique"
 
-#: serializers.py:98
+#: serializers.py:110
 msgid "В рецепте должна быть минимум одна метка"
 msgstr "Recipe should have at least one tag"
 
-#: serializers.py:99
+#: serializers.py:111
 msgid "Все метки должны быть уникальны"
 msgstr "All tags should be unique"
 
-#: serializers.py:108
-msgid "Количество недопустимо (должно быть 1-1000)"
-msgstr "Amount should be between 1 and 1000"
+#: serializers.py:115
+msgid "Метка не существует"
+msgstr "Tag isn't exists"
 
 #: utilities.py:10
 msgid "FoodStoGram"
