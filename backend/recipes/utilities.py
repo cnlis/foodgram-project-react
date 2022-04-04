@@ -2,13 +2,27 @@ from django.utils.translation import gettext_lazy as _
 from fpdf import FPDF
 
 
+class PDF(FPDF):
+    def header(self):
+        self.image('./logo/logo.png', 10, 8, 50)
+        self.add_font('DejaVu', fname='./fonts/DejaVuSerif.ttf')
+        self.set_font('DejaVu', '', 15)
+        self.cell(80)
+        self.cell(30, 10, _('Продуктовый помощник'), 0, 0, 'C')
+        self.ln(20)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('DejaVu', '', 8)
+        self.cell(0, 10, _('Страница {}/{{nb}}')
+                  .format(self.page_no()), 0, 0, "C")
+
+
 def generate_pdf(data):
-    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf = PDF()
+    pdf.alias_nb_pages()
     pdf.add_page()
-    pdf.add_font('DejaVu', fname='fonts/DejaVuSerif.ttf')
     pdf.set_font('DejaVu', '', 20)
-    pdf.cell(200, 10, txt=_('FoodStoGram'),
-             ln=1, align='C')
     pdf.cell(200, 10, txt=_('Ваш список покупок по выбранным рецептам:'),
              ln=2, align='C')
     pdf.set_font('DejaVu', '', 16)

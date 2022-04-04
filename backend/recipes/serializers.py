@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from users.serializers import CustomUserSerializer
 
 from .fields import Base64ImageField
-from .models import IngredientAmount, Recipe, Tag, Ingredient
+from .models import Ingredient, IngredientAmount, Recipe, Tag
 
 User = get_user_model()
 
