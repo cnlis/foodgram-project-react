@@ -19,10 +19,12 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountWriteSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(min_value=1, max_value=1000)
 
     class Meta:
         model = IngredientAmount
-        fields = '__all__'
+        exclude = ('recipe', 'ingredient',)
 
 
 class IngredientAmountReadSerializer(serializers.ModelSerializer):
@@ -89,37 +91,46 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise ValidationError({field_name: [unique_message]})
             data_set.add(item)
 
-    def add_ingredients(self, obj, data):
+    def validate(self, data):
+        tags = self.initial_data.pop('tags', None)
         self.check_data(
-            data=data,
-            field_name='ingredients',
-            count_message=_('В рецепте должен быть минимум один ингредиент'),
-            unique_message=_('Все ингредиенты должны быть уникальны'),
-        )
-        for item in data:
-            item['ingredient'] = item.pop('id')
-            item['recipe'] = obj.pk
-        serializer = IngredientAmountWriteSerializer(data=data, many=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-    def add_tags(self, obj, data):
-        self.check_data(
-            data=data,
+            data=tags,
             field_name='tags',
             count_message=_('В рецепте должна быть минимум одна метка'),
             unique_message=_('Все метки должны быть уникальны')
         )
-        for tag_pk in data:
+        for tag_pk in tags:
             if not Tag.objects.filter(pk=tag_pk).exists():
                 raise ValidationError({'tags': [_('Метка не существует')]})
-        obj.tags.set(data)
+        data['tags'] = tags
+        ingredients = self.initial_data.pop('ingredients', None)
+        self.check_data(
+            data=ingredients,
+            field_name='ingredients',
+            count_message=_('В рецепте должен быть минимум один ингредиент'),
+            unique_message=_('Все ингредиенты должны быть уникальны'),
+        )
+        serializer = IngredientAmountWriteSerializer(
+            data=ingredients,
+            many=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        data['ingredients'] = ingredients
+        return data
+
+    def add_ingredients(self, obj, data):
+        for item in data:
+            IngredientAmount.objects.create(
+                recipe=obj,
+                ingredient_id=item.get('id'),
+                amount=item.get('amount')
+            )
 
     def create(self, validated_data):
-        tags = self.initial_data.pop('tags', None)
-        ingredients = self.initial_data.pop('ingredients', None)
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
-        self.add_tags(recipe, tags)
+        recipe.tags.set(tags)
         self.add_ingredients(recipe, ingredients)
         return recipe
 
@@ -133,7 +144,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.get('tags', instance.tags)
         ingredients = validated_data.get('ingredients', instance.ingredients)
         instance.tags.clear()
-        self.add_tags(instance, tags)
+        instance.tags.set(tags)
         IngredientAmount.objects.filter(recipe=instance).delete()
         self.add_ingredients(instance, ingredients)
         instance.save()
