@@ -30,6 +30,7 @@ class UnitsAdmin(admin.ModelAdmin):
 
 class IngredientAmountInline(admin.TabularInline):
     model = IngredientAmount
+    autocomplete_fields = ('ingredient',)
     extra = 2
 
 

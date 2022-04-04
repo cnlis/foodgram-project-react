@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from users.serializers import CustomUserSerializer
 
@@ -29,9 +30,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
-    name = serializers.CharField(source='ingredient.name')
+    name = serializers.CharField(source='ingredient.name', read_only=True)
     measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit.name',
+        read_only=True,
     )
 
     class Meta:
@@ -43,7 +45,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializer(
         source='ingredientamount_set',
         many=True,
-        read_only=True,
+        # read_only=True,
     )
     tags = TagSerializer(many=True, read_only=True)
     image = Base64ImageField(required=True)
@@ -83,6 +85,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             data_set.add(item)
 
     def validate(self, data):
+        print(data)
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
         RecipeSerializer.check_data(
@@ -97,21 +100,31 @@ class RecipeSerializer(serializers.ModelSerializer):
             count_message=_('В рецепте должна быть минимум одна метка'),
             unique_message=_('Все метки должны быть уникальны')
         )
-        data['ingredients'] = ingredients
-        data['tags'] = tags
+        tags_list = []
+        for tag_id in tags:
+            tags_list.append(get_object_or_404(Tag, pk=tag_id))
+        ingredients_list = []
+        for item in ingredients:
+            amount = item.get('amount')
+            if amount < 1 or amount > 1000:
+                raise ValidationError({'amount': _('Количество недопустимо '
+                                                   '(должно быть 1-1000)')})
+            ingredients_list.append(
+                {
+                    'id': get_object_or_404(Ingredient, pk=item.get('id')),
+                    'amount': amount
+                },
+            )
+        data['ingredients'] = ingredients_list
+        data['tags'] = tags_list
         return data
-
-    @staticmethod
-    def add_tags(obj, data):
-        for tag in data:
-            obj.tags.add(tag)
 
     @staticmethod
     def add_ingredients(obj, data):
         for item in data:
             IngredientAmount.objects.create(
                 recipe=obj,
-                ingredient_id=item.get('id'),
+                ingredient=item.get('id'),
                 amount=item.get('amount'),
             )
 
@@ -119,7 +132,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
-        RecipeSerializer.add_tags(recipe, tags)
+        recipe.tags.set(tags)
         RecipeSerializer.add_ingredients(recipe, ingredients)
         return recipe
 
@@ -133,7 +146,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = validated_data.get('tags', instance.tags)
         ingredients = validated_data.get('ingredients', instance.ingredients)
         instance.tags.clear()
-        RecipeSerializer.add_tags(instance, tags)
+        instance.tags.set(tags)
         IngredientAmount.objects.filter(recipe=instance).delete()
         RecipeSerializer.add_ingredients(instance, ingredients)
         instance.save()
