@@ -22,6 +22,10 @@ LANGUAGE_CODE to 'en' in file backend/foodgram/settings.py.
 ### Полная документация к API в формате ReDoc: 
 ### http://cnlis.ddns.net/api/docs/
 
+### Доступ в админ-зону:
+- email: reviewer@ya.ru
+- пароль: reviewer
+
 ### Технологии вебсайта:
 - Python 3.10
 - Django 4.0.3
