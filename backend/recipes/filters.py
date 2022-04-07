@@ -1,7 +1,16 @@
 import django_filters as df
+from django.contrib.auth import get_user_model
 from django.db.models import Case, IntegerField, Q, Value, When
 
 from .models import Ingredient, Recipe, Tag
+
+User = get_user_model()
+
+
+STATUS_CHOICES = (
+    (0, '0'),
+    (1, '1'),
+)
 
 
 class IngredientFilter(df.FilterSet):
@@ -29,9 +38,11 @@ class RecipeFilter(df.FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    author = df.NumberFilter(field_name='author', lookup_expr='exact')
-    is_favorited = df.NumberFilter(method='get_is_favorited')
-    is_in_shopping_cart = df.NumberFilter(method='get_is_in_shopping_cart')
+    author = df.ModelChoiceFilter(queryset=User.objects.all())
+    is_favorited = df.ChoiceFilter(
+        method='get_is_favorited', choices=STATUS_CHOICES)
+    is_in_shopping_cart = df.ChoiceFilter(
+        method='get_is_in_shopping_cart', choices=STATUS_CHOICES)
 
     class Meta:
         model = Recipe
@@ -39,12 +50,12 @@ class RecipeFilter(df.FilterSet):
 
     def get_is_favorited(self, queryset, name, value):
         user = self.request.user
-        if value == 1 and user.is_authenticated:
+        if value == '1' and user.is_authenticated:
             return queryset.filter(favorite__user=user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if value == 1 and user.is_authenticated:
+        if value == '1' and user.is_authenticated:
             return queryset.filter(shopping_cart__user=user)
         return queryset

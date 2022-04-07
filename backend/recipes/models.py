@@ -30,7 +30,7 @@ class Tag(models.Model):
         verbose_name_plural = _('Метки')
 
     def __str__(self):
-        return f'{self.name}'
+        return self.name
 
 
 class Unit(models.Model):
@@ -68,9 +68,17 @@ class Ingredient(models.Model):
 
 
 class IngredientAmount(models.Model):
-    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.IntegerField(
+    recipe = models.ForeignKey(
+        'Recipe',
+        on_delete=models.CASCADE,
+        related_name='amount'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='amount'
+    )
+    amount = models.PositiveSmallIntegerField(
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(1000)],
         verbose_name=_('Количество')
@@ -87,6 +95,9 @@ class IngredientAmount(models.Model):
         verbose_name_plural = _('Список ингредиентов')
 
     def __str__(self):
+        # f-строки не применяются по причине невозможности их
+        # интернационализировать встроенными средствами Django, в случае когда
+        # строка содержит значения переменных
         return (_('В рецепте {} {} {}')
                 .format(self.recipe, self.amount, self.ingredient))
 
@@ -102,19 +113,19 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through=IngredientAmount,
-        verbose_name=_('Ингридиенты')
+        verbose_name=_('Ингридиенты'),
     )
     name = models.CharField(max_length=200, verbose_name=_('Название'))
     text = models.TextField(
         max_length=1000,
         validators=[MaxLengthValidator(1000)],
-        verbose_name=_('Описание')
+        verbose_name=_('Описание'),
     )
     image = models.ImageField(verbose_name=_('Изображение'))
     cooking_time = models.IntegerField(
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(1440)],
-        verbose_name=_('Время приготовления')
+        verbose_name=_('Время приготовления'),
     )
 
     class Meta:

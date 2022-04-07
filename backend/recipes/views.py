@@ -44,21 +44,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'DELETE':
-            if not model.objects.filter(user=user, recipe=recipe).exists():
+            if not model.objects.filter(user=user, recipe=recipe).delete()[0]:
                 return Response(
                     data={'errors': (_('Нет рецепта {} в {}')
                                      .format(recipe, dest_str))},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            model.objects.get(user=user, recipe=recipe).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        if model.objects.filter(user=user, recipe=recipe).exists():
+        if not model.objects.get_or_create(user=user, recipe=recipe)[1]:
             return Response(
                 data={'errors': (_('Рецепт {} уже в {}')
                                  .format(recipe, dest_str))},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        model.objects.create(user=user, recipe=recipe)
         serializer = self.get_serializer(
             instance=recipe, context={'request': request},)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
@@ -77,8 +75,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
         ingredients = Ingredient.objects.filter(
-            ingredientamount__recipe__shopping_cart__user=request.user
-        ).annotate(total_amount=Sum('ingredientamount__amount'))
+            amount__recipe__shopping_cart__user=request.user
+        ).annotate(total_amount=Sum('amount__amount'))
         pdf = generate_pdf(ingredients)
         return HttpResponse(
             bytes(pdf.output()), content_type='application/pdf')
