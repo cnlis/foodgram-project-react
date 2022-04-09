@@ -9,6 +9,8 @@ User = get_user_model()
 
 
 class Tag(models.Model):
+    """Метки, применяемые к каждому рецепту."""
+
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -34,6 +36,8 @@ class Tag(models.Model):
 
 
 class Unit(models.Model):
+    """Единицы измерения ингредиентов."""
+
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -50,6 +54,8 @@ class Unit(models.Model):
 
 
 class Ingredient(models.Model):
+    """Список ингредиентов с единицами измерения."""
+
     name = models.CharField(max_length=100, verbose_name=_('Название'),)
     measurement_unit = models.ForeignKey(
         Unit,
@@ -68,6 +74,8 @@ class Ingredient(models.Model):
 
 
 class IngredientAmount(models.Model):
+    """Количество ингредиентов для каждого рецепта."""
+
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
@@ -103,6 +111,8 @@ class IngredientAmount(models.Model):
 
 
 class Recipe(models.Model):
+    """Рецепты, созданные пользователем, с ингредиентами."""
+
     tags = models.ManyToManyField(Tag, verbose_name=_('Метки'))
     author = models.ForeignKey(
         User,
@@ -138,6 +148,8 @@ class Recipe(models.Model):
 
 
 class Favorite(models.Model):
+    """Добавление пользователями подписок на рецепты."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -168,6 +180,8 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Корзина покупок пользователя."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

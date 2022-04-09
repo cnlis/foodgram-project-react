@@ -23,6 +23,8 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
+    """Подписки пользователя на авторов."""
+
     user = models.ForeignKey(
         User,
         related_name='subscriber',

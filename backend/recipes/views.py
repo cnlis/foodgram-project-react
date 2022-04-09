@@ -34,6 +34,11 @@ class IngredientViewSet(ReadOnlyViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет работы с рецептами, подписками на них, добавления в корзину и
+    экспорта покупок в PDF.
+    """
+
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)
     serializer_class = RecipeSerializer
@@ -44,22 +49,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'DELETE':
-            if not model.objects.filter(user=user, recipe=recipe).delete()[0]:
-                return Response(
-                    data={'errors': (_('Нет рецепта {} в {}')
-                                     .format(recipe, dest_str))},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        if not model.objects.get_or_create(user=user, recipe=recipe)[1]:
+            deleted, lst = model.objects.filter(
+                user=user, recipe=recipe).delete()
+            if deleted:
+                return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                data={'errors': (_('Рецепт {} уже в {}')
+                data={'errors': (_('Нет рецепта {} в {}')
                                  .format(recipe, dest_str))},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = self.get_serializer(
-            instance=recipe, context={'request': request},)
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+        obj, created = model.objects.get_or_create(user=user, recipe=recipe)
+        if created:
+            serializer = self.get_serializer(
+                instance=recipe, context={'request': request}, )
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(
+            data={'errors': (_('Рецепт {} уже в {}')
+                             .format(recipe, dest_str))},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[permissions.IsAuthenticated])

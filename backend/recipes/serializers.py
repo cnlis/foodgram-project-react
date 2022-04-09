@@ -3,11 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from recipes.fields import Base64ImageField
+from recipes.models import Ingredient, IngredientAmount, Recipe, Tag
 from users.serializers import CustomUserSerializer
-
-# flake8 требует здесь пустую строку (I003)
-from .fields import Base64ImageField
-from .models import Ingredient, IngredientAmount, Recipe, Tag
 
 User = get_user_model()
 
@@ -58,15 +56,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
-        if not user.is_authenticated:
-            return False
-        return user.favorite.filter(recipe=obj).exists()
+        return (user.is_authenticated
+                and user.favorite.filter(recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
-        if not user.is_authenticated:
-            return False
-        return user.shopping_cart.filter(recipe=obj).exists()
+        return (user.is_authenticated
+                and user.shopping_cart.filter(recipe=obj).exists())
 
     def check_data(self, data, field_name, count_message, unique_message):
         if not data:

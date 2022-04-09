@@ -13,6 +13,8 @@ User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    """Подписки на авторов и список подписок."""
+
     permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['POST', 'DELETE'], detail=True)
@@ -20,30 +22,34 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         author = get_object_or_404(User, pk=id)
         if request.method == 'DELETE':
-            if not Subscribe.objects.filter(
-                    user=user, author=author).delete()[0]:
-                return Response(
-                    data={'errors': _('Вы не подписаны на '
-                                      'автора {}').format(author)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            deleted, lst = Subscribe.objects.filter(
+                user=user, author=author).delete()
+            if deleted:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                data={'errors': _('Вы не подписаны на '
+                                  'автора {}').format(author)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if user == author:
             return Response(
                 data={'errors': _('Нельзя подписаться на самого себя')},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if not Subscribe.objects.get_or_create(user=user, author=author)[1]:
-            return Response(
-                data={'errors': _('Вы уже подписаны на '
-                                  'автора {}').format(author)},
-                status=status.HTTP_400_BAD_REQUEST
+        obj, created = Subscribe.objects.get_or_create(
+            user=user, author=author)
+        if created:
+            serializer = SubscribeSerializer(
+                instance=author,
+                context={'request': request},
             )
-        serializer = SubscribeSerializer(
-            instance=author,
-            context={'request': request},
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            data={'errors': _('Вы уже подписаны на '
+                              'автора {}').format(author)},
+            status=status.HTTP_400_BAD_REQUEST
         )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
