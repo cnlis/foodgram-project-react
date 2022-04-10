@@ -88,7 +88,6 @@ function App() {
           })
       } else {
         setLoggedIn(false)
-        getOrders()
       }
     })
     .catch(err => {
@@ -97,7 +96,6 @@ function App() {
         alert(errors.join(', '))
       }
       setLoggedIn(false)
-      getOrders()
     })
   }
 
@@ -161,12 +159,10 @@ function App() {
         })
         .catch(err => {
           setLoggedIn(false)
-          getOrders()
           history.push('/signin')
         })
     }
     setLoggedIn(false)
-    getOrders()
   }, [])
 
   if (loggedIn === null) {
@@ -193,7 +189,7 @@ function App() {
             loggedIn={loggedIn}
             updateOrders={updateOrders}
           />
-          <Route
+          <ProtectedRoute
             exact
             path='/cart'
             component={Cart}

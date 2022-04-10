@@ -18,6 +18,6 @@ export default [
   }, {
     title: 'Список покупок',
     href: '/cart',
-    auth: false
+    auth: true
   }
 ]
