@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User
+User = get_user_model()
 
 
-class UserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = (
         'id', 'username', 'email', 'first_name', 'last_name'
     )
@@ -13,4 +15,4 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = _('-пусто-')
 
 
-admin.site.register(User, UserAdmin)
+admin.site.register(User, CustomUserAdmin)
