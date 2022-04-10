@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import { Switch, Route, useHistory, Redirect, useLocation } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
-import { Header, Footer, ProtectedRoute } from './components'
+import { Header, Footer, ProtectedRoute, SimpleRoute } from './components'
 import api from './api'
 import styles from './styles.module.css'
 import cn from 'classnames'
@@ -88,6 +88,7 @@ function App() {
           })
       } else {
         setLoggedIn(false)
+        getOrders()
       }
     })
     .catch(err => {
@@ -112,6 +113,7 @@ function App() {
       .then(res => {
         localStorage.removeItem('token')
         setLoggedIn(false)
+        getOrders()
       })
       .catch(err => {
         const errors = Object.values(err)
@@ -163,6 +165,7 @@ function App() {
         })
     }
     setLoggedIn(false)
+    getOrders()
   }, [])
 
   if (loggedIn === null) {
@@ -189,7 +192,7 @@ function App() {
             loggedIn={loggedIn}
             updateOrders={updateOrders}
           />
-          <ProtectedRoute
+          <SimpleRoute
             exact
             path='/cart'
             component={Cart}

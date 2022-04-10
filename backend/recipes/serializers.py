@@ -66,7 +66,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return user.shopping_cart.filter(recipe=obj).exists()
         cart = Cart(request)
-        return str(obj.pk) in cart
+        return obj.pk in cart
 
     def check_data(self, data, field_name, count_message, unique_message):
         if not data:

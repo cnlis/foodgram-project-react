@@ -10,6 +10,7 @@ import Button from './button'
 import Title from './title'
 import Form from './form'
 import ProtectedRoute from './protected-route'
+import SimpleRoute from './simple-route'
 import Input from './input'
 import AccountMenu from './account-menu'
 import Nav from './nav'
@@ -39,6 +40,7 @@ export {
   Title,
   Form,
   ProtectedRoute,
+  SimpleRoute,
   Input,
   AccountMenu,
   Nav,

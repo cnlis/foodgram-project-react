@@ -91,7 +91,7 @@ const SingleCard = ({ loadItem, updateOrders }) => {
             </p>
           </div>
           <div className={styles['single-card__buttons']}>
-            {authContext && <Button
+            <Button
               className={styles['single-card__button']}
               modifier={is_in_shopping_cart ? 'style_light' : 'style_dark-blue'}
               clickHandler={_ => {
@@ -100,7 +100,7 @@ const SingleCard = ({ loadItem, updateOrders }) => {
             >
               
             {is_in_shopping_cart ? <><Icons.DoneIcon color="#4A61DD"/>Рецепт добавлен</> : <><Icons.PlusIcon /> Добавить в покупки</>}
-            </Button>}
+            </Button>
             {(userContext || {}).id !== author.id && authContext && <Button
               className={styles['single-card__button']}
               modifier='style_light-blue'

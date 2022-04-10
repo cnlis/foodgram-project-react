@@ -15,7 +15,7 @@ class Cart(object):
 
     def __iter__(self):
         for item in self.cart.keys():
-            yield item
+            yield int(item)
 
     def add(self, recipe):
         recipe_id = str(recipe.id)

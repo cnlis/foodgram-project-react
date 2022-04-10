@@ -2,6 +2,7 @@ import django_filters as df
 from django.contrib.auth import get_user_model
 from django.db.models import Case, IntegerField, Q, Value, When
 
+from .cart import Cart
 from .models import Ingredient, Recipe, Tag
 
 User = get_user_model()
@@ -56,6 +57,9 @@ class RecipeFilter(df.FilterSet):
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if value == '1' and user.is_authenticated:
-            return queryset.filter(shopping_cart__user=user)
+        if value == '1':
+            if user.is_authenticated:
+                return queryset.filter(shopping_cart__user=user)
+            cart = Cart(self.request)
+            return queryset.filter(pk__in=cart)
         return queryset
