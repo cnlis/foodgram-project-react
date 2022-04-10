@@ -389,13 +389,14 @@ class Api {
 
   downloadFile () {
     const token = localStorage.getItem('token')
+    const authorization = token ? { 'authorization': `Token ${token}` } : {}
     return fetch(
       `/api/recipes/download_shopping_cart/`,
       {
         method: 'GET',
         headers: {
           ...this._headers,
-          'authorization': `Token ${token}`
+          ...authorization
         }
       }
     ).then(this.checkFileDownloadResponse)
