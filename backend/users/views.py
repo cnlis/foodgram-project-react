@@ -6,13 +6,14 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from recipes.mixins import ResponseMixin
 from recipes.serializers import SubscribeSerializer
 from users.models import Subscribe
 
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(ResponseMixin, UserViewSet):
     """Подписки на авторов и список подписок."""
 
     permission_classes = [permissions.IsAuthenticated]
@@ -24,13 +25,7 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'DELETE':
             deleted, lst = Subscribe.objects.filter(
                 user=user, author=author).delete()
-            if deleted:
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                data={'errors': _('Вы не подписаны на '
-                                  'автора {}').format(author)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return self.delete_response(deleted, user)
 
         if user == author:
             return Response(
@@ -39,17 +34,7 @@ class CustomUserViewSet(UserViewSet):
             )
         obj, created = Subscribe.objects.get_or_create(
             user=user, author=author)
-        if created:
-            serializer = SubscribeSerializer(
-                instance=author,
-                context={'request': request},
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(
-            data={'errors': _('Вы уже подписаны на '
-                              'автора {}').format(author)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return self.create_response(created, user, SubscribeSerializer)
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):

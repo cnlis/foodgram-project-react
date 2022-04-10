@@ -43,7 +43,7 @@ const Card = ({
       </div>
       
       <div className={styles.card__footer}>
-          {authContext && <Button
+          <Button
             className={styles.card__add}
             modifier={is_in_shopping_cart ? 'style_light' : 'style_light-blue'}
             clickHandler={_ => {
@@ -56,7 +56,7 @@ const Card = ({
             disabled={!authContext}
           >
             {is_in_shopping_cart ? <><Icons.DoneIcon />Рецепт добавлен</> : <><Icons.PlusIcon fill='#4A61DD' /> Добавить в покупки</>}
-          </Button>}
+          </Button>
           
           {authContext && <Button
             modifier='style_none'

@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from recipes.cart import Cart
 from recipes.fields import Base64ImageField
 from recipes.models import Ingredient, IngredientAmount, Recipe, Tag
 from users.serializers import CustomUserSerializer
@@ -60,9 +61,12 @@ class RecipeSerializer(serializers.ModelSerializer):
                 and user.favorite.filter(recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
-        user = self.context.get('request').user
-        return (user.is_authenticated
-                and user.shopping_cart.filter(recipe=obj).exists())
+        request = self.context.get('request')
+        user = request.user
+        if user.is_authenticated:
+            return user.shopping_cart.filter(recipe=obj).exists()
+        cart = Cart(request)
+        return str(obj.pk) in cart
 
     def check_data(self, data, field_name, count_message, unique_message):
         if not data:
@@ -90,7 +94,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             data=tags,
             field_name='tags',
             count_message=_('В рецепте должна быть минимум одна метка'),
-            unique_message=_('Все метки должны быть уникальны')
+            unique_message=_('Все метки должны быть уникальны'),
         )
         if Tag.objects.filter(pk__in=tags).count() != len(tags):
             raise ValidationError({'tags': [_('Метка не существует')]})
