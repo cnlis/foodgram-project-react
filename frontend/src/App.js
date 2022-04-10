@@ -161,10 +161,12 @@ function App() {
         })
         .catch(err => {
           setLoggedIn(false)
+          getOrders()
           history.push('/signin')
         })
     }
     setLoggedIn(false)
+    getOrders()
   }, [])
 
   if (loggedIn === null) {
