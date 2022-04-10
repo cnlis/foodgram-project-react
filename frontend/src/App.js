@@ -88,6 +88,7 @@ function App() {
           })
       } else {
         setLoggedIn(false)
+        getOrders()
       }
     })
     .catch(err => {
@@ -96,6 +97,7 @@ function App() {
         alert(errors.join(', '))
       }
       setLoggedIn(false)
+      getOrders()
     })
   }
 
