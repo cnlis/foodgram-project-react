@@ -189,7 +189,7 @@ function App() {
             loggedIn={loggedIn}
             updateOrders={updateOrders}
           />
-          <ProtectedRoute
+          <Route
             exact
             path='/cart'
             component={Cart}

@@ -53,7 +53,6 @@ const Card = ({
                 callback: updateOrders
               })
             }}
-            disabled={!authContext}
           >
             {is_in_shopping_cart ? <><Icons.DoneIcon />Рецепт добавлен</> : <><Icons.PlusIcon fill='#4A61DD' /> Добавить в покупки</>}
           </Button>
