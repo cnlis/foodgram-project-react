@@ -59,10 +59,10 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
     def add_delete_item(self, request, recipe, model):
         user = request.user
         if request.method == 'DELETE':
-            deleted, lst = model.objects.filter(
+            deleted, _ = model.objects.filter(
                 user=user, recipe=recipe).delete()
             return self.delete_response(deleted, recipe)
-        obj, created = model.objects.get_or_create(user=user, recipe=recipe)
+        _, created = model.objects.get_or_create(user=user, recipe=recipe)
         return self.create_response(created, recipe, self.get_serializer)
 
     @action(methods=['POST', 'DELETE'], detail=True,

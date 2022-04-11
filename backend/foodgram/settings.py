@@ -109,7 +109,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+DEFAULT_RENDERER_CLASSES = ('rest_framework.renderers.JSONRenderer',)
+
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
@@ -145,4 +153,4 @@ DJOSER = {
     }
 }
 
-CART_SESSION_ID = 'cart'
+CART_SESSION_ID = 'cart_list'
