@@ -1,14 +1,14 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Case, Count, Value, When
+from django.db.models import Count, Exists
 from django.utils.translation import gettext_lazy as _
 from djoser.views import UserViewSet
+from recipes.mixins import ResponseMixin
+from recipes.serializers import SubscribeSerializer
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from recipes.mixins import ResponseMixin
-from recipes.serializers import SubscribeSerializer
 from users.models import Subscribe
 
 User = get_user_model()
@@ -21,9 +21,8 @@ class CustomUserViewSet(ResponseMixin, UserViewSet):
 
     def get_queryset(self):
         return User.objects.annotate(
-            is_subscribed=Case(
-                When(subscribing__user=self.request.user, then=True),
-                default=Value(False)),
+            is_subscribed=Exists(
+                User.objects.filter(subscribing__user=self.request.user)),
             recipes_count=Count('recipe')
         ).prefetch_related('recipe')
 

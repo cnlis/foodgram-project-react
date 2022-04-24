@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Case, Prefetch, Sum, Value, When
+from django.db.models import Exists, Prefetch, Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
@@ -54,19 +54,18 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
         else:
             user_id = 0
         return Recipe.objects.annotate(
-            is_favorited=Case(
-                When(favorite__user__pk=user_id, then=True),
-                default=Value(False)),
-            is_in_shopping_cart=Case(
-                When(shopping_cart__user__pk=user_id, then=True),
-                default=Value(False))
+            is_favorited=Exists(
+                Recipe.objects.filter(favorite__user__pk=user_id)),
+            is_in_shopping_cart=Exists(
+                Recipe.objects.filter(shopping_cart__user__pk=user_id))
         ).prefetch_related(
-            Prefetch('author', queryset=User.objects.annotate(
-                is_subscribed=Case(
-                    When(subscribing__user__pk=user_id, then=True),
-                    default=Value(False)),
-            ))
-        ).prefetch_related('amount', 'tags', 'ingredients').distinct()
+            Prefetch(
+                'author', queryset=User.objects.annotate(
+                    is_subscribed=Exists(
+                        User.objects.filter(subscribing__user__pk=user_id))
+                )
+            )
+        ).prefetch_related('amount', 'tags', 'ingredients')
 
     def session_add_delete_item(self, request, recipe):
         cart = Cart(request)
