@@ -49,17 +49,21 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if user.is_authenticated:
+            user_id = user.pk
+        else:
+            user_id = 0
         return Recipe.objects.annotate(
             is_favorited=Case(
-                When(favorite__user=user, then=True),
+                When(favorite__user__pk=user_id, then=True),
                 default=Value(False)),
             is_in_shopping_cart=Case(
-                When(shopping_cart__user=user, then=True),
+                When(shopping_cart__user__pk=user_id, then=True),
                 default=Value(False))
         ).prefetch_related(
             Prefetch('author', queryset=User.objects.annotate(
                 is_subscribed=Case(
-                    When(subscribing__user=user, then=True),
+                    When(subscribing__user__pk=user_id, then=True),
                     default=Value(False)),
             ))
         ).prefetch_related('amount', 'tags', 'ingredients')
