@@ -5,27 +5,27 @@ class Cart:
 
     def __init__(self, request):
         self.session = request.session
-        self.cart = self.session.setdefault(settings.CART_SESSION_ID, [])
-
-    def __len__(self):
-        return len(self.cart)
+        self.cart = set(self.session.setdefault(settings.CART_SESSION_ID, []))
 
     def __iter__(self):
         for item in self.cart:
             yield item
 
+    def __len__(self):
+        return len(self.cart)
+
     def add(self, recipe):
-        recipe_id = recipe.id
-        if recipe_id not in self.cart:
-            self.cart.append(recipe_id)
+        cart_len = len(self.cart)
+        self.cart.add(recipe.id)
         self.save()
+        return cart_len != len(self.cart)
 
     def save(self):
-        self.session[settings.CART_SESSION_ID] = self.cart
+        self.session[settings.CART_SESSION_ID] = list(self.cart)
         self.session.modified = True
 
     def remove(self, recipe):
-        recipe_id = recipe.id
-        if recipe_id in self.cart:
-            self.cart.remove(recipe_id)
-            self.save()
+        cart_len = len(self.cart)
+        self.cart.discard(recipe.id)
+        self.save()
+        return cart_len != len(self.cart)

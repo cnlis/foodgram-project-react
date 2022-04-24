@@ -6,7 +6,7 @@ from users.views import CustomUserViewSet
 
 router_v1 = routers.DefaultRouter()
 router_v1.register('users', CustomUserViewSet, basename='user')
-router_v1.register('recipes', RecipeViewSet)
+router_v1.register('recipes', RecipeViewSet, basename='recipe')
 router_v1.register('tags', TagViewSet)
 router_v1.register('ingredients', IngredientViewSet)
 

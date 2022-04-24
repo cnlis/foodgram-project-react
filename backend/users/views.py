@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Case, Count, Value, When
 from django.utils.translation import gettext_lazy as _
 from djoser.views import UserViewSet
 from rest_framework import permissions, status
@@ -18,6 +19,14 @@ class CustomUserViewSet(ResponseMixin, UserViewSet):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        return User.objects.annotate(
+            is_subscribed=Case(
+                When(subscribing__user=self.request.user, then=True),
+                default=Value(False)),
+            recipes_count=Count('recipe')
+        ).prefetch_related('recipe')
+
     @action(methods=['POST', 'DELETE'], detail=True)
     def subscribe(self, request, id):
         user = request.user
@@ -32,11 +41,12 @@ class CustomUserViewSet(ResponseMixin, UserViewSet):
             )
         obj, created = Subscribe.objects.get_or_create(
             user=user, author=author)
-        return self.create_response(created, user, SubscribeSerializer)
+        author = get_object_or_404(self.get_queryset(), pk=id)
+        return self.create_response(created, author, SubscribeSerializer)
 
     @action(methods=['GET'], detail=False)
     def subscriptions(self, request):
-        queryset = User.objects.filter(subscribing__user=request.user)
+        queryset = self.get_queryset().filter(subscribing__user=request.user)
         page = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(instance=page, many=True,
                                          context={'request': request})

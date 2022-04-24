@@ -47,24 +47,21 @@ class RecipeSerializer(serializers.ModelSerializer):
     text = serializers.CharField(required=True)
     cooking_time = serializers.IntegerField(required=True)
     author = CustomUserSerializer(default=serializers.CurrentUserDefault())
-    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Recipe
         fields = '__all__'
         depth = 1
 
-    def get_is_favorited(self, obj):
-        user = self.context.get('request').user
-        return (user.is_authenticated
-                and user.favorite.filter(recipe=obj).exists())
-
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        user = request.user
-        if user.is_authenticated:
-            return user.shopping_cart.filter(recipe=obj).exists()
+        if request.user.is_authenticated:
+            try:
+                return obj.is_in_shopping_cart
+            except AttributeError:
+                return False
         cart = Cart(request)
         return obj.pk in cart
 
@@ -144,7 +141,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 class SubscribeSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField()
 
     class Meta:
         model = User
@@ -157,6 +154,3 @@ class SubscribeSerializer(CustomUserSerializer):
         if recipes_limit:
             queryset = queryset[:int(recipes_limit)]
         return ShortRecipeSerializer(queryset, many=True).data
-
-    def get_recipes_count(self, obj):
-        return obj.recipe.count()

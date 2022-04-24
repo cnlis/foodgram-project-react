@@ -1,4 +1,5 @@
-from django.db.models import Sum
+from django.contrib.auth import get_user_model
+from django.db.models import Case, Prefetch, Sum, Value, When
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
@@ -12,6 +13,8 @@ from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from .permissions import IsAuthorOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .utilities import generate_pdf
+
+User = get_user_model()
 
 
 class ReadOnlyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin,
@@ -39,21 +42,34 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
     экспорта покупок в PDF.
     """
 
-    queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
+    def get_queryset(self):
+        user = self.request.user
+        return Recipe.objects.annotate(
+            is_favorited=Case(
+                When(favorite__user=user, then=True),
+                default=Value(False)),
+            is_in_shopping_cart=Case(
+                When(shopping_cart__user=user, then=True),
+                default=Value(False))
+        ).prefetch_related(
+            Prefetch('author', queryset=User.objects.annotate(
+                is_subscribed=Case(
+                    When(subscribing__user=user, then=True),
+                    default=Value(False)),
+            ))
+        ).prefetch_related('amount', 'tags', 'ingredients')
+
     def session_add_delete_item(self, request, recipe):
         cart = Cart(request)
-        cart_len = len(cart)
         if request.method == 'DELETE':
-            cart.remove(recipe)
-            deleted = cart_len != len(cart)
+            deleted = cart.remove(recipe)
             return self.delete_response(deleted, recipe)
-        cart.add(recipe)
-        created = cart_len != len(cart)
+        created = cart.add(recipe)
         return self.create_response(created, recipe, self.get_serializer)
 
     def add_delete_item(self, request, recipe, model):
@@ -68,13 +84,13 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = get_object_or_404(self.get_queryset(), pk=pk)
         return self.add_delete_item(request, recipe, Favorite)
 
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[permissions.AllowAny])
     def shopping_cart(self, request, pk):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = get_object_or_404(self.get_queryset(), pk=pk)
         if not request.user.is_authenticated:
             return self.session_add_delete_item(request, recipe)
         return self.add_delete_item(request, recipe, ShoppingCart)
