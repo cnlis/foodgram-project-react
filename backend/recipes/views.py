@@ -66,7 +66,7 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
                     When(subscribing__user__pk=user_id, then=True),
                     default=Value(False)),
             ))
-        ).prefetch_related('amount', 'tags', 'ingredients')
+        ).prefetch_related('amount', 'tags', 'ingredients').distinct()
 
     def session_add_delete_item(self, request, recipe):
         cart = Cart(request)
