@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Exists, Prefetch, Sum
+from django.db.models import Exists, Prefetch, Sum, OuterRef
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
@@ -49,21 +49,17 @@ class RecipeViewSet(ResponseMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated:
-            user_id = user.pk
-        else:
-            user_id = 0
+        user_id = user.pk if user.is_authenticated else 0
         return Recipe.objects.annotate(
-            is_favorited=Exists(
-                Recipe.objects.filter(favorite__user__pk=user_id)),
-            is_in_shopping_cart=Exists(
-                Recipe.objects.filter(shopping_cart__user__pk=user_id))
+            is_favorited=Exists(Favorite.objects.filter(
+                recipe=OuterRef('pk'), user__pk=user_id)),
+            is_in_shopping_cart=Exists(ShoppingCart.objects.filter(
+                recipe=OuterRef('pk'), user__pk=user_id))
         ).prefetch_related(
             Prefetch(
                 'author', queryset=User.objects.annotate(
-                    is_subscribed=Exists(
-                        User.objects.filter(subscribing__user__pk=user_id))
-                )
+                    is_subscribed=Exists(User.objects.filter(
+                        subscribing__user__id=user_id)))
             )
         ).prefetch_related('amount', 'tags', 'ingredients')
 

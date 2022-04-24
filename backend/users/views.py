@@ -32,7 +32,7 @@ class CustomUserViewSet(ResponseMixin, UserViewSet):
         author = get_object_or_404(User, pk=id)
         if request.method == 'DELETE':
             deleted, lst = user.subscriber.filter(author=author).delete()
-            return self.delete_response(deleted, user)
+            return self.delete_response(deleted, author)
         if user == author:
             return Response(
                 data={'errors': _('Нельзя подписаться на самого себя')},
