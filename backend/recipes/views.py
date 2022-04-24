@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Exists, Prefetch, Sum, OuterRef
+from django.db.models import Exists, OuterRef, Prefetch, Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
