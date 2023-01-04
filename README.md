@@ -16,16 +16,6 @@ ShoppingCart на запись и изменение только своих д�
 The project has full English internationalization. To enable it change option
 LANGUAGE_CODE to 'en' in file backend/foodgram/settings.py.
 
-### Ссылка на приложение **Продуктовый помощник**, запущенное на сервере:
-### http://cnlis.ddns.net/
-
-### Полная документация к API в формате ReDoc: 
-### http://cnlis.ddns.net/api/docs/
-
-### Доступ в админ-зону:
-- email: reviewer@ya.ru
-- пароль: reviewer
-
 ### Технологии вебсайта:
 - Python 3.10
 - Django 4.0.3
